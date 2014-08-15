@@ -16,10 +16,10 @@ Vex.Flow.Test.Stave.Start = function() {
       Vex.Flow.Test.Stave.drawVerticalBar);
   Vex.Flow.Test.runTest("Multiple Stave Barline Test (Canvas)",
       Vex.Flow.Test.Stave.drawMultipleMeasures);
-  Vex.Flow.Test.runTest("Multiple Stave Repeats Test (Canvas)",
-      Vex.Flow.Test.Stave.drawRepeats);
   Vex.Flow.Test.runRaphaelTest("Multiple Stave Barline Test (Raphael)",
       Vex.Flow.Test.Stave.drawMultipleMeasures);
+  Vex.Flow.Test.runTest("Multiple Stave Repeats Test (Canvas)",
+      Vex.Flow.Test.Stave.drawRepeats);
   Vex.Flow.Test.runRaphaelTest("Multiple Stave Repeats Test (Raphael)",
       Vex.Flow.Test.Stave.drawRepeats);
   Vex.Flow.Test.runTest("Multiple Staves Volta Test (Canvas)",
@@ -42,7 +42,7 @@ Vex.Flow.Test.Stave.Start = function() {
       Vex.Flow.Test.Stave.drawStaveText);
   Vex.Flow.Test.runRaphaelTest("Stave Text Test (Raphael)",
       Vex.Flow.Test.Stave.drawStaveText);
-  Vex.Flow.Test.runTest("Multiple Line Stave Text Test (Raphael)",
+  Vex.Flow.Test.runTest("Multiple Line Stave Text Test (Canvas)",
       Vex.Flow.Test.Stave.drawStaveTextMultiLine);
   Vex.Flow.Test.runRaphaelTest("Multiple Line Stave Text Test (Raphael)",
       Vex.Flow.Test.Stave.drawStaveTextMultiLine);
