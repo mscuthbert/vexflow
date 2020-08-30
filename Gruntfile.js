@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = (grunt) => {
   const BANNER = [
-    '/**',
+    '/**!',
     ' * VexFlow <%= pkg.version %> built on <%= grunt.template.today("yyyy-mm-dd") %>.',
     ' * Copyright (c) 2010 Mohit Muthanna Cheppudira <mohit@muthanna.com>',
     ' *',
@@ -15,10 +15,12 @@ module.exports = (grunt) => {
   const MODULE_ENTRY = path.join(BASE_DIR, 'src/index.js');
   const TARGET_RAW = 'vexflow-debug.js';
   const TARGET_MIN = 'vexflow-min.js';
+
+  // Used for eslint and docco
+  const SOURCES = ['src/*.js', '!src/header.js'];
+
+  // Take all test files in 'tests/' and build TARGET_TESTS
   const TARGET_TESTS = path.join(BUILD_DIR, 'vexflow-tests.js');
-
-  const SOURCES = ['src/*.js', '!src/header.js', '!src/container.js'];
-
   const TEST_SOURCES = [
     'tests/vexflow_test_helpers.js',
     'tests/mocks.js',
@@ -26,9 +28,9 @@ module.exports = (grunt) => {
     'tests/run.js',
   ];
 
-  function webpackConfig(target, preset) {
+  function webpackConfig(target, preset, mode) {
     return {
-      mode: 'production',
+      mode,
       entry: MODULE_ENTRY,
       output: {
         path: BUILD_DIR,
@@ -37,7 +39,7 @@ module.exports = (grunt) => {
         libraryTarget: 'umd',
         libraryExport: 'default',
       },
-      devtool: 'source-map',
+      devtool: (process.env.VEX_GENMAP || mode === 'production') ? 'source-map' : false,
       module: {
         rules: [
           {
@@ -56,12 +58,8 @@ module.exports = (grunt) => {
     };
   }
 
-  const webpackCommon = webpackConfig(TARGET_RAW, ['@babel/preset-env']);
-
-  // Unsupported build for IE versions <11
-  const TARGET_LEGACY_RAW = 'vexflow-legacy-debug.js';
-  const TARGET_LEGACY_MIN = 'vexflow-legacy-min.js';
-  const webpackLegacy = webpackConfig(TARGET_LEGACY_RAW, ['@babel/preset-env', { 'loose': true }]);
+  const webpackProd = webpackConfig(TARGET_MIN, ['@babel/preset-env'], 'production');
+  const webpackDev = webpackConfig(TARGET_RAW, ['@babel/preset-env'], 'development');
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -76,47 +74,13 @@ module.exports = (grunt) => {
       },
     },
     webpack: {
-      build: webpackCommon,
-      buildLegacy: webpackLegacy,
-      watch: Object.assign({}, webpackCommon, {
+      build: webpackProd,
+      buildDev: webpackDev,
+      watch: {
+        ...webpackDev,
         watch: true,
         keepalive: true,
         failOnError: false,
-        watchOptions: {
-          watchDelay: 0,
-        },
-      }),
-    },
-    uglify: {
-      options: {
-        banner: BANNER,
-        sourceMap: true,
-      },
-      build: {
-        files: [
-          {
-            expand: true,
-            cwd: BUILD_DIR,
-            src: TARGET_RAW,
-            dest: BUILD_DIR,
-            rename: function (dst) {
-              return path.join(dst, TARGET_MIN);
-            }
-          }
-        ],
-      },
-      buildLegacy: {
-        files: [
-          {
-            expand: true,
-            cwd: BUILD_DIR,
-            src: TARGET_LEGACY_RAW,
-            dest: BUILD_DIR,
-            rename: function (dst) {
-              return path.join(dst, TARGET_LEGACY_MIN);
-            }
-          }
-        ],
       },
     },
     eslint: {
@@ -180,6 +144,7 @@ module.exports = (grunt) => {
       options: {
         bump: false,
         commit: false,
+        npm: false, // Run npm publish by hand
       },
     },
     clean: [BUILD_DIR],
@@ -187,7 +152,6 @@ module.exports = (grunt) => {
 
   // Load the plugin that provides the "uglify" task.
   grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-qunit');
   grunt.loadNpmTasks('grunt-contrib-copy');
@@ -200,23 +164,21 @@ module.exports = (grunt) => {
   grunt.loadNpmTasks('grunt-webpack');
 
   // Default task(s).
-  grunt.registerTask('default', ['eslint', 'webpack:build', 'concat', 'uglify:build', 'docco']);
-  grunt.registerTask('buildLegacy', ['webpack:buildLegacy', 'uglify:buildLegacy']);
-  grunt.registerTask('test', 'Run qunit tests.', ['webpack:build', 'concat', 'qunit']);
+  grunt.registerTask('default', ['eslint', 'webpack:buildDev', 'webpack:build', 'concat', 'docco']);
+  grunt.registerTask('test', 'Run qunit tests.', ['webpack:buildDev', 'concat', 'qunit']);
 
   // Release current build.
-  grunt.registerTask('stage', 'Stage current binaries to releases/.', () => {
+  grunt.registerTask('stage', 'Stage current bundles to releases/.', () => {
     grunt.task.run('default');
-    grunt.task.run('buildLegacy');
     grunt.task.run('qunit');
     grunt.task.run('copy:release');
   });
 
-  // Increment package version and publish to NPM.
-  grunt.registerTask('publish', 'Publish VexFlow NPM.', () => {
-    grunt.task.run('bump');
-    grunt.task.run('stage');
-    grunt.task.run('gitcommit:releases');
-    grunt.task.run('release');
+  grunt.registerTask('alldone', 'Publish VexFlow NPM.', () => {
+    grunt.log.ok('NOT YET DONE: Run `npm publish` now to publish NPM.');
   });
+
+  // Increment package version generate releases
+  grunt.registerTask('publish', 'Generate releases.',
+    ['bump', 'stage', 'gitcommit:releases', 'release', 'alldone']);
 };

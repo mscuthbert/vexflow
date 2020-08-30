@@ -54,13 +54,18 @@ export class Stem extends Element {
     this.isStemlet = options.isStemlet || false;
     this.stemletHeight = options.stemletHeight || 0;
 
-    // Changing where the stem meets the head
-    this.stem_up_y_offset = options.stem_up_y_offset || 0;
-    this.stem_down_y_offset = options.stem_down_y_offset || 0;
-
     // Use to adjust the rendered height without affecting
     // the results of `.getExtents()`
     this.renderHeightAdjustment = 0;
+    this.setOptions(options);
+  }
+
+  setOptions(options) {
+    // Changing where the stem meets the head
+    this.stem_up_y_offset = options.stem_up_y_offset || 0;
+    this.stem_down_y_offset = options.stem_down_y_offset || 0;
+    this.stem_up_y_base_offset = options.stem_up_y_base_offset || 0;
+    this.stem_down_y_base_offset = options.stem_down_y_base_offset || 0;
   }
 
   // Set the x bounds for the default notehead
@@ -102,6 +107,7 @@ export class Stem extends Element {
     const isStemUp = this.stem_direction === Stem.UP;
     const ys = [this.y_top, this.y_bottom];
     const stemHeight = Stem.HEIGHT + this.stem_extension;
+
     const innerMostNoteheadY = (isStemUp ? Math.min : Math.max)(...ys);
     const outerMostNoteheadY = (isStemUp ? Math.max : Math.min)(...ys);
     const stemTipY = innerMostNoteheadY + (stemHeight * -this.stem_direction);
@@ -130,14 +136,17 @@ export class Stem extends Element {
     let stem_y;
     const stem_direction = this.stem_direction;
 
+    let y_base_offset = 0;
     if (stem_direction === Stem.DOWN) {
       // Down stems are rendered to the left of the head.
       stem_x = this.x_begin;
       stem_y = this.y_top + this.stem_down_y_offset;
+      y_base_offset = this.stem_down_y_base_offset;
     } else {
       // Up stems are rendered to the right of the head.
       stem_x = this.x_end;
       stem_y = this.y_bottom - this.stem_up_y_offset;
+      y_base_offset = this.stem_up_y_base_offset;
     }
 
     const stemHeight = this.getHeight();
@@ -154,7 +163,7 @@ export class Stem extends Element {
     this.applyStyle(ctx);
     ctx.beginPath();
     ctx.setLineWidth(Stem.WIDTH);
-    ctx.moveTo(stem_x, stem_y - stemletYOffset);
+    ctx.moveTo(stem_x, stem_y - stemletYOffset + y_base_offset);
     ctx.lineTo(stem_x, stem_y - stemHeight - (this.renderHeightAdjustment * stem_direction));
     ctx.stroke();
     this.restoreStyle(ctx);

@@ -77,12 +77,8 @@ export class Stave extends Element {
     if (!this.formatted) this.format();
 
     this.start_x = x;
-    if (this.modifiers.length > 0) {
-      const begBarline = this.modifiers[0];
-      if (begBarline.getType() === Barline.type.REPEAT_BEGIN) {
-        begBarline.setX(this.start_x - begBarline.getWidth());
-      }
-    }
+    const begBarline = this.modifiers[0];
+    begBarline.setX(this.start_x - begBarline.getWidth());
     return this;
   }
   getNoteStartX() {
@@ -144,11 +140,11 @@ export class Stave extends Element {
   }
 
   getStyle() {
-    return Object.assign({
+    return {
       fillStyle: this.options.fill_style,
       strokeStyle: this.options.fill_style, // yes, this is correct for legacy compatibility
-      lineWidth: Flow.STAVE_LINE_THICKNESS,
-    }, this.style || {});
+      lineWidth: Flow.STAVE_LINE_THICKNESS, ...this.style || {}
+    };
   }
 
   setMeasure(measure) { this.measure = measure; return this; }
@@ -167,6 +163,11 @@ export class Stave extends Element {
     if (!this.formatted) this.format();
 
     if (this.getModifiers(StaveModifier.Position.BEGIN).length === 1) {
+      return 0;
+    }
+
+    // for right position modifiers zero shift seems correct, see 'Volta + Modifier Measure Test'
+    if (this.modifiers[index].getPosition() === StaveModifier.Position.RIGHT) {
       return 0;
     }
 
@@ -283,6 +284,8 @@ export class Stave extends Element {
     return this.getYForLine(3);
   }
 
+  // This method adds a stave modifier to the stave. Note that the first two
+  // modifiers (BarLines) are automatically added upon construction.
   addModifier(modifier, position) {
     if (position !== undefined) {
       modifier.setPosition(position);
@@ -427,10 +430,10 @@ export class Stave extends Element {
   }
 
   getModifiers(position, category) {
-    if (position === undefined) return this.modifiers;
+    if (position === undefined && category === undefined) return this.modifiers;
 
     return this.modifiers.filter(modifier =>
-      position === modifier.getPosition() &&
+      (position === undefined || position === modifier.getPosition()) &&
       (category === undefined || category === modifier.getCategory())
     );
   }

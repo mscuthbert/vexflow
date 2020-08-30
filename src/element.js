@@ -8,6 +8,7 @@
 
 import { Vex } from './vex';
 import { Registry } from './registry';
+import { Flow } from './tables';
 
 export class Element {
   static newID() { return 'auto' + (Element.ID++); }
@@ -23,11 +24,23 @@ export class Element {
     this.boundingBox = null;
     this.context = null;
     this.rendered = false;
+    this.fontStack = Flow.DEFAULT_FONT_STACK;
+    this.musicFont = Flow.DEFAULT_FONT_STACK[0];
 
     // If a default registry exist, then register with it right away.
     if (Registry.getDefaultRegistry()) {
       Registry.getDefaultRegistry().register(this);
     }
+  }
+
+  // set music font
+  setFontStack(fontStack) {
+    this.fontStack = fontStack;
+    this.musicFont = fontStack[0];
+    return this;
+  }
+  getFontStack() {
+    return this.fontStack;
   }
 
   // set the draw style of a stemmable note:

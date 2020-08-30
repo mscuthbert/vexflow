@@ -251,11 +251,17 @@ export class SVGContext {
     this.width = width;
     this.height = height;
     this.element.style.width = width;
+
+    this.svg.style.width = width;
+    this.svg.style.height = height;
+
     const attributes = {
       width,
       height,
     };
+
     this.applyAttributes(this.svg, attributes);
+    this.scale(this.state.scale.x, this.state.scale.y);
     return this;
   }
 
@@ -637,6 +643,7 @@ export class SVGContext {
         'font-weight': this.state['font-weight'],
         'font-style': this.state['font-style'],
         'font-size': this.state['font-size'],
+        scale: this.state.scale,
       },
       attributes: {
         'font-family': this.attributes['font-family'],
@@ -664,6 +671,7 @@ export class SVGContext {
     this.state['font-weight'] = state.state['font-weight'];
     this.state['font-style'] = state.state['font-style'];
     this.state['font-size'] = state.state['font-size'];
+    this.state.scale = state.state.scale;
 
     this.attributes['font-family'] = state.attributes['font-family'];
     this.attributes['font-weight'] = state.attributes['font-weight'];
