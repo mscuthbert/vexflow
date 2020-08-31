@@ -151,8 +151,7 @@ const getInitialOffset = (note, position) => {
 export class Articulation extends Modifier {
   static get CATEGORY() { return 'articulations'; }
   static get INITIAL_OFFSET() { return -0.5; }
-  static get DEBUG() { return true; }
-
+  
   // FIXME:
   // Most of the complex formatting logic (ie: snapping to space) is
   // actually done in .draw(). But that logic belongs in this method.
