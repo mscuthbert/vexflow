@@ -20,7 +20,7 @@ function L(...args) { if (Articulation.DEBUG) Vex.L('Vex.Flow.Articulation', arg
 
 const { ABOVE, BELOW } = Modifier.Position;
 
-const roundToNearestHalf = (mathFn, value) => mathFn(value / 0.5) * 0.5;
+const roundToNearestHalf = (mathFn, value) => mathFn(value * 2.0) / 2.0;
 
 // This includes both staff and ledger lines
 const isWithinLines = (line, position) => position === ABOVE ? line <= 5 : line >= 1;
@@ -120,9 +120,9 @@ const getBottomY = (note, textLine) => {
   }
 };
 
-// Gets the initial offset of the articulation from the y value of the starting position.
+// Gets the initial y-offset of the articulation from the y value of the starting position.
 // This is required because the top/bottom text positions already have spacing applied to
-// provide a "visually pleasent" default position. However the y values provided from
+// provide a "visually pleasant" default position. However the y values provided from
 // the stavenote's top/bottom do *not* have any pre-applied spacing. This function
 // normalizes this asymmetry.
 const getInitialOffset = (note, position) => {
@@ -151,10 +151,11 @@ const getInitialOffset = (note, position) => {
 export class Articulation extends Modifier {
   static get CATEGORY() { return 'articulations'; }
   static get INITIAL_OFFSET() { return -0.5; }
+  static get DEBUG() { return true; }
 
   // FIXME:
   // Most of the complex formatting logic (ie: snapping to space) is
-  // actually done in .render(). But that logic belongs in this method.
+  // actually done in .draw(). But that logic belongs in this method.
   //
   // Unfortunately, this isn't possible because, by this point, stem lengths
   // have not yet been finalized. Finalized stem lengths are required to determine the
@@ -168,6 +169,9 @@ export class Articulation extends Modifier {
   // Ideally, when this function has completed, the vertical articulation positions
   // should be ready to render without further adjustment. But the current state
   // is far from this ideal.
+  //
+  // state is defined in ModifierContext().state = { left_shift, right_shift,
+  //     text_line, top_text_line }, all set to 0 originally.
   static format(articulations, state) {
     if (!articulations || articulations.length === 0) return false;
 
@@ -191,7 +195,7 @@ export class Articulation extends Modifier {
       .filter(isBelow)
       .forEach(articulation => {
         articulation.setTextLine(state.text_line);
-        state.text_line += getIncrement(articulation, state.text_line, BELOW);
+        state.text_line += Math.max(1.0, getIncrement(articulation, state.text_line, BELOW));
       });
 
     const width = articulations
@@ -312,7 +316,7 @@ export class Articulation extends Modifier {
       y += Math.abs(snappedLine - articLine) * staffSpace * offsetDirection + (padding * offsetDirection);
     }
 
-    L(`Rendering articulation at (x: ${x}, y: ${y})`);
+    L(`Rendering articulation ${this.type} at (x: ${x}, y: ${y})`);
 
     glyph.render(ctx, x, y);
   }

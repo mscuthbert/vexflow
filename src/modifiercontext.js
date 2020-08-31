@@ -2,7 +2,7 @@
 //
 // ## Description
 //
-// This class implements various types of modifiers to notes (e.g. bends,
+// This class implements formatting various types of modifiers to notes (e.g. bends,
 // fingering positions etc.)
 
 import { Vex } from './vex';
@@ -24,9 +24,12 @@ import { Vibrato } from './vibrato';
 // To enable logging for this class. Set `Vex.Flow.ModifierContext.DEBUG` to `true`.
 function L(...args) { if (ModifierContext.DEBUG) Vex.L('Vex.Flow.ModifierContext', args); }
 
+/**
+ * Formats modifiers, such as fingerings, articulations, etc. within a context.
+ */
 export class ModifierContext {
   constructor() {
-    // Current modifiers
+    // Current modifiers, as an Array with the ModifierClass.CATEGORY as key.
     this.modifiers = {};
 
     // Formatting data.
@@ -92,9 +95,10 @@ export class ModifierContext {
 
   preFormat() {
     if (this.preFormatted) return;
-    this.PREFORMAT.forEach((modifier) => {
-      L('Preformatting ModifierContext: ', modifier.CATEGORY);
-      modifier.format(this.getModifiers(modifier.CATEGORY), this.state, this);
+    this.PREFORMAT.forEach((ModifierClass) => {
+      L('Preformatting ModifierContext: ', ModifierClass.CATEGORY);
+      const modifiers_for_class = this.getModifiers(ModifierClass.CATEGORY);
+      ModifierClass.format(modifiers_for_class, this.state, this);
     });
 
     // Update width of this modifier context
@@ -104,9 +108,10 @@ export class ModifierContext {
 
   postFormat() {
     if (this.postFormatted) return;
-    this.POSTFORMAT.forEach((modifier) => {
-      L('Postformatting ModifierContext: ', modifier.CATEGORY);
-      modifier.postFormat(this.getModifiers(modifier.CATEGORY), this);
+    this.POSTFORMAT.forEach((ModifierClass) => {
+      L('Postformatting ModifierContext: ', ModifierClass.CATEGORY);
+      const modifiers_for_class = this.getModifiers(ModifierClass.CATEGORY);
+      ModifierClass.postFormat(modifiers_for_class, this);
     });
   }
 }

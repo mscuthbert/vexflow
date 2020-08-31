@@ -14,7 +14,12 @@ VF.Test.Articulation = (function() {
       Articulation.runTests('Articulation - Snap Pizzicato/Fermata', 'ao', 'ao', Articulation.drawArticulations);
       Articulation.runTests('Articulation - Up-stroke/Down-Stroke', 'a|', 'am', Articulation.drawArticulations);
       Articulation.runTests('Articulation - Fermata Above/Below', 'a@a', 'a@u', Articulation.drawFermata);
-      Articulation.runTests('Articulation - Inline/Multiple', 'a.', 'a.', Articulation.drawArticulations2);
+      Articulation.runTests(
+        'Articulation - Inline/Multiple',
+        'unused',
+        'unused',
+        Articulation.drawArticulations2
+      );
       Articulation.runTests('TabNote Articulation', 'a.', 'a.', Articulation.tabNotes);
     },
 
@@ -157,6 +162,13 @@ VF.Test.Articulation = (function() {
 
     drawArticulations2: function(options, contextBuilder) {
       expect(0);
+      var ABOVE = VF.Modifier.Position.ABOVE;
+      var BELOW = VF.Modifier.Position.BELOW;
+      var UP = VF.Stem.UP;
+      var DOWN = VF.Stem.DOWN;
+
+      var FERMATA_UNDER = 'a@u';
+      var FERMATA_OVER = 'a@a';
 
       // Get the rendering context
       var ctx = contextBuilder(options.elementId, 1000, 200);
@@ -165,30 +177,30 @@ VF.Test.Articulation = (function() {
       var staveBar1 = new VF.Stave(10, 30, 350);
       staveBar1.setContext(ctx).draw();
       var notesBar1 = [
-        new VF.StaveNote({ keys: ['c/4'], duration: '16', stem_direction: 1 }),
-        new VF.StaveNote({ keys: ['d/4'], duration: '16', stem_direction: 1 }),
-        new VF.StaveNote({ keys: ['e/4'], duration: '16', stem_direction: 1 }),
-        new VF.StaveNote({ keys: ['f/4'], duration: '16', stem_direction: 1 }),
-        new VF.StaveNote({ keys: ['g/4'], duration: '16', stem_direction: 1 }),
-        new VF.StaveNote({ keys: ['a/4'], duration: '16', stem_direction: 1 }),
-        new VF.StaveNote({ keys: ['b/4'], duration: '16', stem_direction: 1 }),
-        new VF.StaveNote({ keys: ['c/5'], duration: '16', stem_direction: 1 }),
-        new VF.StaveNote({ keys: ['d/5'], duration: '16', stem_direction: -1 }),
-        new VF.StaveNote({ keys: ['e/5'], duration: '16', stem_direction: -1 }),
-        new VF.StaveNote({ keys: ['f/5'], duration: '16', stem_direction: -1 }),
-        new VF.StaveNote({ keys: ['g/5'], duration: '16', stem_direction: -1 }),
-        new VF.StaveNote({ keys: ['a/5'], duration: '16', stem_direction: -1 }),
-        new VF.StaveNote({ keys: ['b/5'], duration: '16', stem_direction: -1 }),
-        new VF.StaveNote({ keys: ['c/6'], duration: '16', stem_direction: -1 }),
-        new VF.StaveNote({ keys: ['d/6'], duration: '16', stem_direction: -1 }),
+        new VF.StaveNote({ keys: ['c/4'], duration: '16', stem_direction: UP }),
+        new VF.StaveNote({ keys: ['d/4'], duration: '16', stem_direction: UP }),
+        new VF.StaveNote({ keys: ['e/4'], duration: '16', stem_direction: UP }),
+        new VF.StaveNote({ keys: ['f/4'], duration: '16', stem_direction: UP }),
+        new VF.StaveNote({ keys: ['g/4'], duration: '16', stem_direction: UP }),
+        new VF.StaveNote({ keys: ['a/4'], duration: '16', stem_direction: UP }),
+        new VF.StaveNote({ keys: ['b/4'], duration: '16', stem_direction: UP }),
+        new VF.StaveNote({ keys: ['c/5'], duration: '16', stem_direction: UP }),
+        new VF.StaveNote({ keys: ['d/5'], duration: '16', stem_direction: DOWN }),
+        new VF.StaveNote({ keys: ['e/5'], duration: '16', stem_direction: DOWN }),
+        new VF.StaveNote({ keys: ['f/5'], duration: '16', stem_direction: DOWN }),
+        new VF.StaveNote({ keys: ['g/5'], duration: '16', stem_direction: DOWN }),
+        new VF.StaveNote({ keys: ['a/5'], duration: '16', stem_direction: DOWN }),
+        new VF.StaveNote({ keys: ['b/5'], duration: '16', stem_direction: DOWN }),
+        new VF.StaveNote({ keys: ['c/6'], duration: '16', stem_direction: DOWN }),
+        new VF.StaveNote({ keys: ['d/6'], duration: '16', stem_direction: DOWN }),
       ];
       var i;
       for (i = 0; i < 16; i++) {
-        notesBar1[i].addArticulation(0, new VF.Articulation('a.').setPosition(4));
-        notesBar1[i].addArticulation(0, new VF.Articulation('a>').setPosition(4));
+        notesBar1[i].addArticulation(0, new VF.Articulation('a.').setPosition(BELOW));
+        notesBar1[i].addArticulation(0, new VF.Articulation('a>').setPosition(BELOW));
 
         if (i === 15) {
-          notesBar1[i].addArticulation(0, new VF.Articulation('a@u').setPosition(4));
+          notesBar1[i].addArticulation(0, new VF.Articulation(FERMATA_UNDER).setPosition(BELOW));
         }
       }
 
@@ -204,29 +216,29 @@ VF.Test.Articulation = (function() {
       var staveBar2 = new VF.Stave(staveBar1.width + staveBar1.x, staveBar1.y, 350);
       staveBar2.setContext(ctx).draw();
       var notesBar2 = [
-        new VF.StaveNote({ keys: ['f/3'], duration: '16', stem_direction: 1 }),
-        new VF.StaveNote({ keys: ['g/3'], duration: '16', stem_direction: 1 }),
-        new VF.StaveNote({ keys: ['a/3'], duration: '16', stem_direction: 1 }),
-        new VF.StaveNote({ keys: ['b/3'], duration: '16', stem_direction: 1 }),
-        new VF.StaveNote({ keys: ['c/4'], duration: '16', stem_direction: 1 }),
-        new VF.StaveNote({ keys: ['d/4'], duration: '16', stem_direction: 1 }),
-        new VF.StaveNote({ keys: ['e/4'], duration: '16', stem_direction: 1 }),
-        new VF.StaveNote({ keys: ['f/4'], duration: '16', stem_direction: 1 }),
-        new VF.StaveNote({ keys: ['g/4'], duration: '16', stem_direction: -1 }),
-        new VF.StaveNote({ keys: ['a/4'], duration: '16', stem_direction: -1 }),
-        new VF.StaveNote({ keys: ['b/4'], duration: '16', stem_direction: -1 }),
-        new VF.StaveNote({ keys: ['c/5'], duration: '16', stem_direction: -1 }),
-        new VF.StaveNote({ keys: ['d/5'], duration: '16', stem_direction: -1 }),
-        new VF.StaveNote({ keys: ['e/5'], duration: '16', stem_direction: -1 }),
-        new VF.StaveNote({ keys: ['f/5'], duration: '16', stem_direction: -1 }),
-        new VF.StaveNote({ keys: ['g/5'], duration: '16', stem_direction: -1 }),
+        new VF.StaveNote({ keys: ['f/3'], duration: '16', stem_direction: UP }),
+        new VF.StaveNote({ keys: ['g/3'], duration: '16', stem_direction: UP }),
+        new VF.StaveNote({ keys: ['a/3'], duration: '16', stem_direction: UP }),
+        new VF.StaveNote({ keys: ['b/3'], duration: '16', stem_direction: UP }),
+        new VF.StaveNote({ keys: ['c/4'], duration: '16', stem_direction: UP }),
+        new VF.StaveNote({ keys: ['d/4'], duration: '16', stem_direction: UP }),
+        new VF.StaveNote({ keys: ['e/4'], duration: '16', stem_direction: UP }),
+        new VF.StaveNote({ keys: ['f/4'], duration: '16', stem_direction: UP }),
+        new VF.StaveNote({ keys: ['g/4'], duration: '16', stem_direction: DOWN }),
+        new VF.StaveNote({ keys: ['a/4'], duration: '16', stem_direction: DOWN }),
+        new VF.StaveNote({ keys: ['b/4'], duration: '16', stem_direction: DOWN }),
+        new VF.StaveNote({ keys: ['c/5'], duration: '16', stem_direction: DOWN }),
+        new VF.StaveNote({ keys: ['d/5'], duration: '16', stem_direction: DOWN }),
+        new VF.StaveNote({ keys: ['e/5'], duration: '16', stem_direction: DOWN }),
+        new VF.StaveNote({ keys: ['f/5'], duration: '16', stem_direction: DOWN }),
+        new VF.StaveNote({ keys: ['g/5'], duration: '16', stem_direction: DOWN }),
       ];
       for (i = 0; i < 16; i++) {
-        notesBar2[i].addArticulation(0, new VF.Articulation('a-').setPosition(3));
-        notesBar2[i].addArticulation(0, new VF.Articulation('a^').setPosition(3));
+        notesBar2[i].addArticulation(0, new VF.Articulation('a-').setPosition(ABOVE));
+        notesBar2[i].addArticulation(0, new VF.Articulation('a^').setPosition(ABOVE));
 
         if (i === 15) {
-          notesBar2[i].addArticulation(0, new VF.Articulation('a@u').setPosition(4));
+          notesBar2[i].addArticulation(0, new VF.Articulation(FERMATA_UNDER).setPosition(BELOW));
         }
       }
 
@@ -243,11 +255,11 @@ VF.Test.Articulation = (function() {
       staveBar3.setContext(ctx).draw();
 
       var notesBar3 = [
-        new VF.StaveNote({ keys: ['c/4'], duration: 'w', stem_direction: 1 }),
+        new VF.StaveNote({ keys: ['c/4'], duration: 'w', stem_direction: UP }),
       ];
-      notesBar3[0].addArticulation(0, new VF.Articulation('a-').setPosition(3));
-      notesBar3[0].addArticulation(0, new VF.Articulation('a>').setPosition(3));
-      notesBar3[0].addArticulation(0, new VF.Articulation('a@a').setPosition(3));
+      notesBar3[0].addArticulation(0, new VF.Articulation('a-').setPosition(ABOVE));
+      notesBar3[0].addArticulation(0, new VF.Articulation('a>').setPosition(ABOVE));
+      notesBar3[0].addArticulation(0, new VF.Articulation(FERMATA_OVER).setPosition(ABOVE));
 
       // Helper function to justify and draw a 4/4 voice
       VF.Formatter.FormatAndDraw(ctx, staveBar3, notesBar3);
@@ -257,15 +269,15 @@ VF.Test.Articulation = (function() {
       staveBar4.setContext(ctx).draw();
 
       var notesBar4 = [
-        new VF.StaveNote({ keys: ['c/5'], duration: 'q', stem_direction: -1 }),
-        new VF.StaveNote({ keys: ['a/5'], duration: 'q', stem_direction: -1 }),
-        new VF.StaveNote({ keys: ['c/5'], duration: 'q', stem_direction: -1 }),
-        new VF.StaveNote({ keys: ['a/5'], duration: 'q', stem_direction: -1 }),
+        new VF.StaveNote({ keys: ['c/5'], duration: 'q', stem_direction: DOWN }),
+        new VF.StaveNote({ keys: ['a/5'], duration: 'q', stem_direction: DOWN }),
+        new VF.StaveNote({ keys: ['c/5'], duration: 'q', stem_direction: DOWN }),
+        new VF.StaveNote({ keys: ['a/5'], duration: 'q', stem_direction: DOWN }),
       ];
       for (i = 0; i < 4; i++) {
-        var position1 = 3;
+        var position1 = ABOVE;
         if (i > 1) {
-          position1 = 4;
+          position1 = BELOW;
         }
         notesBar4[i].addArticulation(0, new VF.Articulation('a-').setPosition(position1));
       }
