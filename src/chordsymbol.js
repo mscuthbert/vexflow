@@ -11,15 +11,18 @@
 import { Vex } from './vex';
 import { Flow } from './tables';
 import { Glyph } from './glyph';
+import { TextFont } from './textfont';
 import { Modifier } from './modifier';
-import { PetalumaScriptMetrics } from './fonts/petalumaScript_metrics';
-import { RobotoSlabMetrics } from './fonts/robotoSlab_metrics';
 
 // To enable logging for this class. Set `Vex.Flow.ChordSymbol.DEBUG` to `true`.
-function L(...args) { if (ChordSymbol.DEBUG) Vex.L('Vex.Flow.ChordSymbol', args); }
+function L(...args) {
+  if (ChordSymbol.DEBUG) Vex.L('Vex.Flow.ChordSymbol', args);
+}
 
 export class ChordSymbol extends Modifier {
-  static get CATEGORY() { return 'chordSymbol'; }
+  static get CATEGORY() {
+    return 'chordSymbol';
+  }
 
   // Chord symbols can be positioned and justified relative to the note.
   static get horizontalJustify() {
@@ -40,7 +43,6 @@ export class ChordSymbol extends Modifier {
     };
   }
 
-
   static get verticalJustify() {
     return {
       TOP: 1,
@@ -60,7 +62,7 @@ export class ChordSymbol extends Modifier {
   // used to globally turn off text formatting, if the built-in formatting does not
   // work for your font..
   static get NOTEXTFORMAT() {
-    return typeof(ChordSymbol.noFormat) === 'undefined' ? false : ChordSymbol.noFormat;
+    return typeof ChordSymbol.noFormat === 'undefined' ? false : ChordSymbol.noFormat;
   }
 
   static set NOTEXTFORMAT(val) {
@@ -76,7 +78,7 @@ export class ChordSymbol extends Modifier {
       top: ChordSymbol.verticalJustify.TOP,
       above: ChordSymbol.verticalJustify.TOP,
       below: ChordSymbol.verticalJustify.BOTTOM,
-      bottom: ChordSymbol.verticalJustify.BOTTOM
+      bottom: ChordSymbol.verticalJustify.BOTTOM,
     };
   }
   static getMetricForGlyph(glyphCode) {
@@ -86,30 +88,12 @@ export class ChordSymbol extends Modifier {
     return null;
   }
 
-  static get textMetricsForEngravingFont() {
-    if (Vex.Flow.DEFAULT_FONT_STACK[0].name === 'Petaluma') {
-      return PetalumaScriptMetrics;
-    } else {
-      return RobotoSlabMetrics;
-    }
-  }
-
-  static getMetricForCharacter(c) {
-    if (ChordSymbol.NOTEXTFORMAT) {
-      return null;
-    }
-    if (ChordSymbol.textMetricsForEngravingFont.glyphs[c]) {
-      return ChordSymbol.textMetricsForEngravingFont.glyphs[c];
-    }
-    return null;
-  }
-
-  static getYOffsetForText(text) {
+  getYOffsetForText(text) {
     let acc = 0;
     let ix = 0;
-    const resolution = ChordSymbol.textMetricsForEngravingFont.resolution;
+    const resolution = this.textFont.resolution;
     for (ix = 0; ix < text.length; ++ix) {
-      const metric = ChordSymbol.getMetricForCharacter(text[ix]);
+      const metric = this.textFont.getMetricForCharacter(text[ix]);
 
       if (metric) {
         acc = metric.y < acc ? metric.y : acc;
@@ -127,19 +111,14 @@ export class ChordSymbol extends Modifier {
     return ChordSymbol.chordSymbolMetrics.global.spacing / ChordSymbol.engravingFontResolution;
   }
 
-  static getWidthForCharacter(c) {
-    const resolution = ChordSymbol.textMetricsForEngravingFont.resolution;
-    const metric = ChordSymbol.getMetricForCharacter(c);
-    if (!metric) {
-      return 0.65;
-    }
-    return metric.advanceWidth / resolution;
+  getWidthForCharacter(c) {
+    return this.textFont.getMetricForCharacter(c).advanceWidth / this.textFont.resolution;
   }
 
   static getWidthForGlyph(glyph) {
     const metric = ChordSymbol.getMetricForGlyph(glyph.code);
     if (!metric) {
-      return 0.65;  // probably should do something here.
+      return 0.65; // probably should do something here.
     }
     return metric.advanceWidth / ChordSymbol.engravingFontResolution;
   }
@@ -175,25 +154,25 @@ export class ChordSymbol extends Modifier {
   // Glyph data
   static get glyphs() {
     return {
-      'diminished': {
+      diminished: {
         code: 'csymDiminished',
       },
-      'dim': {
+      dim: {
         code: 'csymDiminished',
       },
-      'halfDiminished': {
+      halfDiminished: {
         code: 'csymHalfDiminished',
       },
       '+': {
         code: 'csymAugmented',
       },
-      'augmented': {
+      augmented: {
         code: 'csymAugmented',
       },
-      'majorSeventh': {
+      majorSeventh: {
         code: 'csymMajorSeventh',
       },
-      'minor': {
+      minor: {
         code: 'csymMinor',
       },
       '-': {
@@ -202,39 +181,39 @@ export class ChordSymbol extends Modifier {
       '(': {
         code: 'csymParensLeftTall',
       },
-      'leftParen': {
+      leftParen: {
         code: 'csymParensLeftTall',
       },
       ')': {
         code: 'csymParensRightTall',
       },
-      'rightParen': {
+      rightParen: {
         code: 'csymParensRightTall',
       },
-      'leftBracket': {
+      leftBracket: {
         code: 'csymBracketLeftTall',
       },
-      'rightBracket': {
+      rightBracket: {
         code: 'csymBracketRightTall',
       },
-      'leftParenTall': {
+      leftParenTall: {
         code: 'csymParensLeftVeryTall',
       },
-      'rightParenTall': {
+      rightParenTall: {
         code: 'csymParensRightVeryTall',
       },
       '/': {
         code: 'csymDiagonalArrangementSlash',
       },
-      'over': {
+      over: {
         code: 'csymDiagonalArrangementSlash',
       },
       '#': {
         code: 'accidentalSharp',
       },
-      'b': {
+      b: {
         code: 'accidentalFlat',
-      }
+      },
     };
   }
 
@@ -242,7 +221,7 @@ export class ChordSymbol extends Modifier {
     return {
       GLYPH: 1,
       TEXT: 2,
-      LINE: 3
+      LINE: 3,
     };
   }
 
@@ -250,7 +229,7 @@ export class ChordSymbol extends Modifier {
     return {
       NONE: 1,
       SUBSCRIPT: 2,
-      SUPERSCRIPT: 3
+      SUPERSCRIPT: 3,
     };
   }
 
@@ -275,6 +254,7 @@ export class ChordSymbol extends Modifier {
 
     let width = 0;
     let nonSuperWidth = 0;
+    const reportedWidths = [];
 
     for (let i = 0; i < instances.length; ++i) {
       const instance = instances[i];
@@ -287,7 +267,7 @@ export class ChordSymbol extends Modifier {
         const symbol = instance.symbolBlocks[j];
         const sup = instance.isSuperscript(symbol);
         const sub = instance.isSubscript(symbol);
-        const subAdj = (sup || sub) ? ChordSymbol.superSubRatio : 1;
+        const subAdj = sup || sub ? ChordSymbol.superSubRatio : 1;
         const adj = symbol.symbolType === ChordSymbol.symbolTypes.GLYPH ? glyphAdj * subAdj : fontAdj * subAdj;
 
         // If there are super/subscripts, they extend beyond the line so
@@ -304,12 +284,11 @@ export class ChordSymbol extends Modifier {
           symbol.glyph.scale = symbol.glyph.scale * adj;
           symbol.width = ChordSymbol.getWidthForGlyph(symbol.glyph) * instance.pointsToPixels * subAdj;
         } else if (symbol.symbolType === ChordSymbol.symbolTypes.TEXT) {
-          symbol.width = symbol.width * instance.pointsToPixels * subAdj;
-          symbol.yShift += ChordSymbol.getYOffsetForText(symbol.text) * adj;
+          symbol.width = symbol.width * instance.textFont.pointsToPixels * subAdj;
+          symbol.yShift += instance.getYOffsetForText(symbol.text) * adj;
         }
 
-        if (symbol.symbolType === ChordSymbol.symbolTypes.GLYPH &&
-          symbol.glyph.code === ChordSymbol.glyphs.over.code) {
+        if (symbol.symbolType === ChordSymbol.symbolTypes.GLYPH && symbol.glyph.code === ChordSymbol.glyphs.over.code) {
           lineSpaces = 2;
         }
         symbol.width += ChordSymbol.spacingBetweenBlocks * instance.pointsToPixels * subAdj;
@@ -349,7 +328,14 @@ export class ChordSymbol extends Modifier {
         instance.setTextLine(state.text_line + 1);
         state.text_line += lineSpaces + 1;
       }
+      if (instance.getReportWidth()) {
+        reportedWidths.push(width);
+      } else {
+        reportedWidths.push(0);
+      }
     }
+
+    width = reportedWidths.reduce((a, b) => a + b);
 
     state.left_shift += width / 2;
     state.right_shift += width / 2;
@@ -369,6 +355,7 @@ export class ChordSymbol extends Modifier {
     this.horizontal = ChordSymbol.horizontalJustify.LEFT;
     this.vertical = ChordSymbol.verticalJustify.TOP;
     this.useKerning = true;
+    this.reportWidth = true;
 
     let fontFamily = 'Arial';
     if (this.musicFont.name === 'Petaluma') {
@@ -381,12 +368,13 @@ export class ChordSymbol extends Modifier {
       size: 12,
       weight: '',
     };
+    this.textFont = TextFont.getTextFontFromVexFontData(this.font);
   }
 
   // ### pointsToPixels
   // The font size is specified in points, convert to 'pixels' in the svg space
   get pointsToPixels() {
-    return (this.font.size / 72) / (1 / 96);
+    return this.textFont.pointsToPixels;
   }
 
   get superscriptOffset() {
@@ -397,11 +385,21 @@ export class ChordSymbol extends Modifier {
     return ChordSymbol.subscriptOffset * this.pointsToPixels;
   }
 
+  setReportWidth(value) {
+    this.reportWidth = value;
+    return this;
+  }
+
+  getReportWidth() {
+    return this.reportWidth;
+  }
+
   updateOverBarAdjustments() {
     let symIx = 0;
-    const barIx = this.symbolBlocks.findIndex((symbol) =>
-      symbol.symbolType === ChordSymbol.symbolTypes.GLYPH &&
-      symbol.glyph.code === 'csymDiagonalArrangementSlash');
+    const barIx = this.symbolBlocks.findIndex(
+      (symbol) =>
+        symbol.symbolType === ChordSymbol.symbolTypes.GLYPH && symbol.glyph.code === 'csymDiagonalArrangementSlash'
+    );
 
     if (barIx < 0) {
       return;
@@ -443,16 +441,16 @@ export class ChordSymbol extends Modifier {
     const prevSymbol = j > 0 ? this.symbolBlocks[j - 1] : null;
     let rv = 0;
 
-
     // Move things into the '/' over bar
-    if (symbol.symbolType === ChordSymbol.symbolTypes.GLYPH &&
-      symbol.glyph.code === ChordSymbol.glyphs.over.code) {
+    if (symbol.symbolType === ChordSymbol.symbolTypes.GLYPH && symbol.glyph.code === ChordSymbol.glyphs.over.code) {
       rv += symbol.glyph.metrics.x_shift;
     }
 
-    if (prevSymbol !== null &&
+    if (
+      prevSymbol !== null &&
       prevSymbol.symbolType === ChordSymbol.symbolTypes.GLYPH &&
-      prevSymbol.glyph.code === ChordSymbol.glyphs.over.code) {
+      prevSymbol.glyph.code === ChordSymbol.glyphs.over.code
+    ) {
       rv += prevSymbol.glyph.metrics.x_shift;
     }
 
@@ -487,7 +485,7 @@ export class ChordSymbol extends Modifier {
   // Each block can have its own vertical orientation
   getSymbolBlock(parameters) {
     parameters = parameters == null ? {} : parameters;
-    const symbolType = (parameters.symbolType ? parameters.symbolType : ChordSymbol.symbolTypes.TEXT);
+    const symbolType = parameters.symbolType ? parameters.symbolType : ChordSymbol.symbolTypes.TEXT;
     const text = parameters.text ? parameters.text : '';
     const symbolModifier = parameters.symbolModifier ? parameters.symbolModifier : ChordSymbol.symbolModifiers.NONE;
     const xShift = 0;
@@ -495,13 +493,18 @@ export class ChordSymbol extends Modifier {
     const vAlign = 0;
 
     const rv = {
-      text, symbolType, symbolModifier, xShift, yShift, vAlign
+      text,
+      symbolType,
+      symbolModifier,
+      xShift,
+      yShift,
+      vAlign,
     };
 
     rv.width = 0;
     // Note: all symbol widths are resolution and font-independent.  We convert to
     // pixel values when we know what the font is.
-    if (symbolType === ChordSymbol.symbolTypes.GLYPH && typeof(parameters.glyph) === 'string') {
+    if (symbolType === ChordSymbol.symbolTypes.GLYPH && typeof parameters.glyph === 'string') {
       const glyphArgs = ChordSymbol.glyphs[parameters.glyph];
       const glyphPoints = 20;
       rv.glyph = new Glyph(glyphArgs.code, glyphPoints, { category: 'chordSymbol' });
@@ -512,7 +515,7 @@ export class ChordSymbol extends Modifier {
     } else if (symbolType === ChordSymbol.symbolTypes.TEXT) {
       let twidth = 0;
       for (let i = 0; i < rv.text.length; ++i) {
-        twidth += ChordSymbol.getWidthForCharacter(rv.text[i]);
+        twidth += this.getWidthForCharacter(rv.text[i]);
       }
       rv.width = twidth;
     } else if (symbolType === ChordSymbol.symbolTypes.LINE) {
@@ -605,16 +608,20 @@ export class ChordSymbol extends Modifier {
     return this.addSymbolBlock(parameters);
   }
 
-  getCategory() { return ChordSymbol.CATEGORY; }
+  getCategory() {
+    return ChordSymbol.CATEGORY;
+  }
 
   // Set font family, size, and weight. E.g., `Arial`, `10pt`, `Bold`.
   setFont(family, size, weight) {
     this.font = { family, size, weight };
+    this.textFont = TextFont.getTextFontFromVexFontData(this.font);
     return this;
   }
 
   setFontSize(size) {
     this.font.size = size;
+    this.textFont.setFontSize(size);
     return this;
   }
 
@@ -626,9 +633,7 @@ export class ChordSymbol extends Modifier {
   // Set vertical position of text (above or below stave). `just` must be
   // a value in `ChordSymbol.vertical`.
   setVertical(just) {
-    this.vertical = typeof (just) === 'string'
-      ? ChordSymbol.verticalJustifyString[just]
-      : just;
+    this.vertical = typeof just === 'string' ? ChordSymbol.verticalJustifyString[just] : just;
     return this;
   }
   getVertical() {
@@ -638,9 +643,7 @@ export class ChordSymbol extends Modifier {
   // Get and set horizontal justification. `justification` is a value in
   // `ChordSymbol.Justify`.
   setHorizontal(just) {
-    this.horizontal = typeof (just) === 'string'
-      ? ChordSymbol.horizontalJustifyString[just]
-      : just;
+    this.horizontal = typeof just === 'string' ? ChordSymbol.horizontalJustifyString[just] : just;
     return this;
   }
 
@@ -666,9 +669,7 @@ export class ChordSymbol extends Modifier {
     this.setRendered();
 
     if (!this.note) {
-      throw new Vex.RERR(
-        'NoNoteForAnnotation', "Can't draw text annotation without an attached note."
-      );
+      throw new Vex.RERR('NoNoteForAnnotation', "Can't draw text annotation without an attached note.");
     }
 
     // We're changing context parameters. Save current state.
@@ -676,8 +677,7 @@ export class ChordSymbol extends Modifier {
     const classString = Object.keys(this.getAttribute('classes')).join(' ');
     this.context.openGroup(classString, this.getAttribute('id'));
 
-    const start = this.note.getModifierStartXY(Modifier.Position.ABOVE,
-      this.index);
+    const start = this.note.getModifierStartXY(Modifier.Position.ABOVE, this.index);
     this.context.setFont(this.font.family, this.font.size, this.font.weight);
 
     let y;
@@ -699,13 +699,14 @@ export class ChordSymbol extends Modifier {
       // is bottom-right.
       y = stave.getYForBottomText(this.text_line + Flow.TEXT_HEIGHT_OFFSET_HACK);
       if (has_stem) {
-        const stem_base = (this.note.getStemDirection() === 1 ? stem_ext.baseY : stem_ext.topY);
-        y = Math.max(y, stem_base + (spacing * (this.text_line + 2)));
+        const stem_base = this.note.getStemDirection() === 1 ? stem_ext.baseY : stem_ext.topY;
+        y = Math.max(y, stem_base + spacing * (this.text_line + 2));
       }
-    } else  { // (this.vertical === ChordSymbol.verticalJustify.TOP)
+    } else {
+      // (this.vertical === ChordSymbol.verticalJustify.TOP)
       y = Math.min(stave.getYForTopText(this.text_line), this.note.getYs()[0] - 10);
       if (has_stem) {
-        y = Math.min(y, (stem_ext.topY - 5) - (spacing * this.text_line));
+        y = Math.min(y, stem_ext.topY - 5 - spacing * this.text_line);
       }
     }
 
@@ -716,8 +717,8 @@ export class ChordSymbol extends Modifier {
       x = start.x + this.getWidth();
     } else if (this.horizontal === ChordSymbol.horizontalJustify.CENTER) {
       x = start.x - this.getWidth() / 2;
-    } else /* CENTER_STEM */ {
-      x = this.note.getStemX() -  this.getWidth() / 2;
+    } /* CENTER_STEM */ else {
+      x = this.note.getStemX() - this.getWidth() / 2;
     }
     L('Rendering ChordSymbol: ', this.text, x, y);
 
